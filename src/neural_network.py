@@ -15,6 +15,8 @@ from tensorflow import keras
 import constants as cts
 import dataset_handler as dh
 
+plt.rcParams.update({'font.size': 13})
+
 class LossLogger(keras.callbacks.Callback):
     def __init__(self, log_file, model_save_dir=cts.NN_TEMP_WEIGHTS_DIR):
         super().__init__()
@@ -132,12 +134,12 @@ def evaluate_nn_model(model, train_set, test_set, scaler_X, scaler_y):
         y_pred_scaled = model.predict(X_scaled,verbose=0)
         y_pred = scaler_y.inverse_transform(y_pred_scaled)
         y_orig = scaler_y.inverse_transform(y_scaled)
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(8, 6))
         plt.scatter(y_orig, y_pred, alpha=0.7, label=f"{dataset_name} Data")
         plt.plot([min(y_orig), max(y_orig)], [min(y_orig), max(y_orig)], 'r--')
-        plt.xlabel('Actual Discharge')
-        plt.ylabel('Predicted Discharge')
-        plt.title(f'Neural Network: Actual vs. Predicted Discharge ({dataset_name})')
+        plt.xlabel('Observed Discharge ($m^3$/s)')
+        plt.ylabel('Predicted Discharge ($m^3$/s)')
+        plt.title(f'Feed Forward Neural Network: Observed vs. Predicted Discharge ({dataset_name})')
         plt.text(
         0.05, 0.85, f"$R^2$ = {test_metrics['r2']:.4f}\n",
         transform=plt.gca().transAxes, fontsize=12, color="black",

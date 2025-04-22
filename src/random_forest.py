@@ -12,6 +12,8 @@ from scipy.stats import pearsonr
 import constants as cts
 import dataset_handler as dh
 
+plt.rcParams.update({'font.size': 13})
+
 def nash_sutcliffe_efficiency(observed, predicted):
     observed_mean = np.mean(observed)
     numerator = np.sum((observed - predicted) ** 2)
@@ -44,7 +46,7 @@ def compute_nse(y_true, y_pred):
     return (1 - np.sum((y_true - y_pred) ** 2) /
             np.sum((y_true - np.mean(y_true)) ** 2))
 
-def evaluate_forest_model(model, train_set, test_set):
+def evaluate_forest_model(model= joblib.load(cts.RAND_WEIGHTS), train_set=None, test_set=None):
     X_train = np.array(train_set["waterlevel"]).reshape(-1, 1)
     y_train = np.array(train_set["discharge"])
     X_test = np.array(test_set["waterlevel"]).reshape(-1, 1)
@@ -54,22 +56,22 @@ def evaluate_forest_model(model, train_set, test_set):
     sorted_indices = np.argsort(X_train.flatten())
     sorted_x = X_train[sorted_indices]
     sorted_y_pred = y_train_pred[sorted_indices]
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(8, 6))
     plt.scatter(X_train, y_train, label="Training Data", alpha=0.6)
     plt.plot(sorted_x, sorted_y_pred, color="red", linewidth=2, label="Predicted")
-    plt.xlabel("Water Level")
-    plt.ylabel("Discharge")
+    plt.xlabel("Water Level ($m^3$/s)")
+    plt.ylabel("Discharge ($m^3$/s)")
     plt.grid()
     plt.legend(loc="lower right")
     plt.title("Random Forest Regression: Training Data")
     plt.savefig(cts.RAND_TRAIN_SET_EVALUATION_PLOT, bbox_inches='tight')
     plt.show()
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(8, 6))
     plt.scatter(y_test, y_test_pred, color="blue", alpha=0.6, label="Test Data")
     plt.plot(y_test, y_test, color="red", linestyle="--", linewidth=2, 
              label="Ideal Fit (y = x)")
-    plt.xlabel("Observed Discharge")
-    plt.ylabel("Predicted Discharge")
+    plt.xlabel("Observed Discharge ($m^3$/s)")
+    plt.ylabel("Predicted Discharge ($m^3$/s)")
     plt.grid()
     plt.legend(loc="lower right")
     mse = mean_squared_error(y_test, y_test_pred)
@@ -123,6 +125,6 @@ def dump_evaluation_metrics(results):
        
 if __name__ == "__main__":
     [train_set,test_set] = dh.load_data()
-    model =  build_forest_model(train_set=train_set)
-    metrics = evaluate_forest_model(model=model,train_set=train_set,
+    #model =  build_forest_model(train_set=train_set)
+    metrics = evaluate_forest_model(train_set=train_set,
                                     test_set=test_set)

@@ -14,7 +14,10 @@ import math
 
 plt.rcParams.update({'font.size': 13})
 
-model = Model(1)
+#flag: 3 - random forest regressor model
+#flag: 2 - third degree polynomial model
+#flag: 1 - Feed forwad nueral network model
+model = Model(flag=3)
 
 class DischargeOptimization(ElementwiseProblem):
     def __init__(self):
@@ -30,14 +33,14 @@ class DischargeOptimization(ElementwiseProblem):
         # Objective 1: Maximize Q (flood control) → minimize -Q
         obj1 = -Q  
         # Objective 2: Keep water level near normal
-        obj2 = max(0, (x[0] - x_normal)) 
+        obj2 = x[0] - x_normal
         # Store objectives as a numpy array
         out["F"] = np.array([obj1, obj2])
         # Constraints:
         # 1. Discharge should be below 4200 (Q - 4200 ≤ 0)
         g1 = Q - 4200
-        # 2. Water level should be between 11 and 13.5 (handled as constraints)
-        g2 = max(0, 11 - x[0]) + max(0, x[0] - 13.5)  # Ensures water level stays in range
+        # 2. Water level should be between 11 and 13 (handled as constraints)
+        g2 = max(0, 11 - x[0]) + max(0, x[0] - 13)  # Ensures water level stays in range
         out["G"] = np.array([g1, g2])
 
 # Define NSGA-II optimization algorithm
@@ -106,21 +109,21 @@ for i in range(len(F_sorted[:, 0])) :
 Q_optimized_real = F_sorted[:, 0]
 plt.figure(figsize=(10, 6))
 plt.plot(wl_optimized, Q_optimized, 'b', label='Optimized Discharge')
-plt.plot(wl_optimized, Q_rating, 'r', label='Rating Curve Discharge')
+plt.plot(wl_optimized, Q_rating, 'r', label='Agreed Curve Discharge')
 plt.xlabel("Water Level (m)")
 plt.ylabel("Discharge (m³/s)")
-plt.title("Water Level vs. Discharge: Optimized vs Rating Curve")
+plt.title("Water Level vs. Discharge: Optimized vs Agreed Curve")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.savefig(cts.DISCHARGE_AGREED_WL_COMPARISON_PLOT, bbox_inches='tight')
 plt.show()
 plt.figure(figsize=(10, 6))
-plt.plot(Q_optimized_real, deviations, 'b', label='Optimized Q vs Deviation')
-plt.plot(Q_rating, deviations, 'r', label='Rating Curve Q vs Same Deviation')
+plt.plot(Q_optimized_real, deviations, 'b', label='Optimized Discharge')
+plt.plot(Q_rating, deviations, 'r', label='Agreed Curve Discharge')
 plt.xlabel("Discharge (m³/s)")
 plt.ylabel("Deviation from Normal Water Level (m)")
-plt.title("Deviation vs. Discharge: Optimized vs Rating Curve")
+plt.title("Deviation vs. Discharge: Optimized vs Agreed Curve")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
@@ -128,7 +131,7 @@ plt.savefig(cts.DEVIATION_DISCHARGED_AGREED_COMPARISON_PLOT, bbox_inches='tight'
 plt.show()
 compare_df = pd.DataFrame({"Water Level":wl_optimized,
                            "Optimized_Discharge":Q_optimized,
-                           "Rating Curve Discharge":Q_rating, 
+                           "Agreed Curve Discharge":Q_rating, 
                            "Deviation from Normal WL": deviations})
 compare_df.to_csv(cts.PARETALO_AGREED,index=False)
 

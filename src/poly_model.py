@@ -5,12 +5,11 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from scipy.stats import pearsonr
-from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 import constants as cts
 import dataset_handler as dh
 
+plt.rcParams.update({'font.size': 13})
 
 def build_poly_model(train_set, model_path=cts.POLY_WEIGHTS, transformer_path=cts.POLY_TRANSFORMER):
     X_train = np.array(train_set["waterlevel"]).reshape(-1, 1)
@@ -59,11 +58,11 @@ def evaluate_poly_model(model, train_set, test_set):
     plt.title("Polynomial Regression: Training Data")
     plt.savefig(cts.POLY_TRAIN_SET_EVALUATION_PLOT, bbox_inches='tight')
     plt.show()
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(8, 6))
     plt.scatter(y_test, y_test_pred, color="blue", alpha=0.6, label="Test Data")
     plt.plot(y_test, y_test, color="red", linestyle="--", linewidth=2, label="Ideal Fit (y = x)")
-    plt.xlabel("Observed Discharge")
-    plt.ylabel("Predicted Discharge")
+    plt.xlabel("Observed Discharge ($m^3$/s)")
+    plt.ylabel("Predicted Discharge ($m^3$/s)")
     plt.grid()
     plt.legend(loc="lower right")
     mse = mean_squared_error(y_test, y_test_pred)

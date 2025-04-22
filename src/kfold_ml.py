@@ -416,7 +416,7 @@ def evaluate_models_on_test(test_set):
     rf_metric_r2 = rf_metrics['r2']
     poly_metric_r2 = poly_metrics['r2']
     fnn_metric_r2 = fnn_metrics['r2']
-    plt.plot(line_range, rf_line, 'r', label=f'Random Forest: $R^2$ = {rf_metric_r2:.4f}', linewidth=2)
+    plt.plot(line_range, rf_line, 'r', label=f'Random Forest Regressor: $R^2$ = {rf_metric_r2:.4f}', linewidth=2)
     poly_model = LinearRegression()
     poly_model.fit(y_test, np.array(poly_test_preds).reshape(-1, 1))
     poly_line = poly_model.predict(line_range.reshape(-1, 1))
@@ -424,7 +424,7 @@ def evaluate_models_on_test(test_set):
     nn_model = LinearRegression()
     nn_model.fit(y_test, np.array(nn_test_preds).reshape(-1, 1))
     nn_line = nn_model.predict(line_range.reshape(-1, 1))
-    plt.plot(line_range, nn_line, 'b', label=f'Neural Network: $R^2$ = {fnn_metric_r2:.4f}', linewidth=2)
+    plt.plot(line_range, nn_line, 'b', label=f'Feed Forward Neural Network: $R^2$ = {fnn_metric_r2:.4f}', linewidth=2)
     plt.scatter(y_test, rf_test_preds, color='r', alpha=0.8, s=20)
     plt.scatter(y_test, poly_test_preds, color='g', alpha=0.8, s=20)
     plt.scatter(y_test, nn_test_preds, color='b', alpha=0.8, s=20)   
@@ -479,7 +479,7 @@ def kfold_cross_validation_training(data_dict, n_splits=2):
     return ffnn_val_results,poly_val_results,rf_val_results
 
 def retrain_best_model(train_set,test_set,flag=1):
-    if flag == 1:
+    if flag == 3:
         import random_forest as rf
         print('Training random forest on entire training set')
         rf.build_forest_model(train_set=train_set)
@@ -489,7 +489,7 @@ def retrain_best_model(train_set,test_set,flag=1):
         print("Training polynomial on entire training set")
         poly.build_poly_model(train_set=train_set)
         poly.evaluate_poly_model(joblib.load(cts.POLY_WEIGHTS),train_set,test_set)
-    elif flag == 3:
+    elif flag == 1:
         import neural_network as nn 
         print("Training FNN on entire training set")
         nn.build_nn_model(train_set=train_set)
@@ -501,14 +501,14 @@ def select_best_generalized_model(k=10):
     if (ffnn_val_results['rmse'] <= poly_val_results['rmse']) \
     and (ffnn_val_results['rmse'] <= rf_val_results['rmse']):
         print("Feed Forward Neural Network best generalizes")
-        return 3
+        return 1
     elif (poly_val_results['rmse'] <= ffnn_val_results['rmse']) \
     and (poly_val_results['rmse'] <= rf_val_results['rmse']):
         print("Polynomial model best generalizes")
         return 2
     else:
         print("Random forest best generalizes")
-        return 1
+        return 3
 
 if __name__ == "__main__":
     [train_set,test_set] = dh.load_data()
